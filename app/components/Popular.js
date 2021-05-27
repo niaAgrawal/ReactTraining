@@ -74,8 +74,70 @@ GridViewPopularRepos.propTypes = {
   repos: PropTypes.array.isRequired
 }
 
+function fetchReposReducer (state,action ){
+  if(action.type === 'success'){
+    return {
+      ...state,
+      [action.selectlng] : action.repos,
+      error:null
+    }
+  } else if(action.type === 'error'){
+    return {
+      ...state,
+      error: action.error.message
+    }
+  }else {
+    throw new Error(`This action type isn't supported.`)
+  }
+}
 
-export default class Popular extends React.Component{
+export default function Popular () {
+  const [selectlng, setSelectlng] = React.useState('All')
+  const [state, dispatch] = React.useReducer(
+    fetchReposReducer,
+    {error:null}
+  )
+  const fetchReposRef = React.useRef([])
+
+  React.useEffect(()=>{
+    console.log(selectlng)
+    if(fetchReposRef.current.includes(selectlng) === false){
+      fetchReposRef.current.push(selectlng)
+
+      fetchPopularRepos(selectlng)
+      .then((repos)=>{
+       console.log(repos)
+        return dispatch({
+          type:'success',
+          selectlng,
+          repos
+        })
+      })
+      .catch((error)=>{
+        return dispatch({
+          type:'error',
+          error
+        })
+      })
+    }
+  },[fetchReposRef,selectlng])
+
+  const isLoading = () => !state[selectlng] && state.error === null
+  
+  
+  return (
+    <React.Fragment>
+      <LanguageList 
+        selected = {selectlng}
+        onUpadateHandler = {setSelectlng}
+      />
+      {isLoading() && <p><Loading text='LOADING'/></p>}
+      {state.error && <p>Error while fetching the repos</p>}
+      {state[selectlng] && <GridViewPopularRepos repos = {state[selectlng]}/>}
+    </React.Fragment>
+  )
+}
+/*export default class Popular extends React.Component{
   constructor(props) {
     super(props)
     this.state = {
@@ -129,7 +191,7 @@ export default class Popular extends React.Component{
           selected = {selectlng}
           onUpadateHandler = {this.updateLng}
         />
-        {this.isLoading() && <p><Loading /></p>}
+        {this.isLoading() && <p><Loading text='LOADING'/></p>}
         {this.state.error && <p>Error while fetching the repos</p>}
 
         {this.state.repos[this.state.selectlng] && <GridViewPopularRepos repos = {this.state.repos[selectlng]}/>}
@@ -137,4 +199,4 @@ export default class Popular extends React.Component{
     )
     
   }
-}
+}*/

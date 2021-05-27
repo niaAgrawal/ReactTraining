@@ -11,7 +11,29 @@ const style = {
     textAlign: 'center',
   }
 }
-export default class Loading extends React.Component{
+
+export default function Loading ({text = 'LOADING'}){
+  
+  const [content, setContent] = React.useState(text)
+  const id = React.useRef(null)
+  const clear =()=> window.clearInterval(id.current)
+
+  React.useEffect(()=>{
+    id.current = window.setInterval(() => {
+      setContent((c)=> {
+        return c === `${text}...` ? text : `${c}.`
+      }) 
+    },300)
+    return clear
+  },[text])
+
+  return (
+    <p
+      style={style.content}
+    >{content}</p>
+  )
+}
+/*export default class Loading extends React.Component{
 
   constructor (props){
     super (props)
@@ -48,7 +70,7 @@ export default class Loading extends React.Component{
     )
   }
 }
-
+*/
 Loading.propTypes = {
   text: PropTypes.string.isRequired
 }

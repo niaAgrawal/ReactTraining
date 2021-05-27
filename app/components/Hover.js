@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default class Hover extends React.Component {
+/*export default class Hover extends React.Component {
 
   constructor (props) {
     super(props)
@@ -35,4 +35,18 @@ export default class Hover extends React.Component {
       </div>
     )
   }
+}
+*/
+
+export default function useHover (){
+  const [hovering, setHovering] = React.useState(false)
+
+  const mouseOver = () => setHovering(true)
+  const mouseOut = () => setHovering(false)
+
+  const opt = {
+    onMouseOver: mouseOver,
+    onMouseOut: mouseOut
+  }
+  return [hovering, opt]
 }

@@ -1,7 +1,7 @@
 import React, { Children } from 'react'
 import PropTypes from 'prop-types'
 //import WithHover from './WithHover'
-import Hover from './Hover'
+import useHover from './Hover'
 
 const styles = {
   container: {
@@ -83,7 +83,7 @@ const styles = {
 
 // This is for Render Props
 
-export default class Tooltip extends React.Component {
+/*export default class Tooltip extends React.Component {
 
   render (){
     const {text, children} = this.props
@@ -102,9 +102,18 @@ export default class Tooltip extends React.Component {
 Tooltip.propTypes = {
   text: PropTypes.string.isRequired
 }
-
+*/
 
 // This is for HOC
 //export default WithHover(Tooltip, 'hovering')
 
 
+export default function Tooltip({text, children}){
+  const [hovering, opt] = useHover()
+  return(
+    <div style={styles.container} {...opt}>
+      {hovering === true && <div style={styles.tooltip} >{text}</div>}
+      {children}
+    </div>
+  )
+}

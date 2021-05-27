@@ -44,8 +44,88 @@ CardList.propTypes = {
   profile: PropTypes.object.isRequired
 }
 
+function ResultReducer(state,action){
+  if(action.type=='success'){
+    return {
+      ...state,
+      loading:false,
+      winner: action.winner,
+      loser: action.loser,
+    }
 
-export default class Result extends React.Component{
+  } else if(action.type == 'error'){
+    return {
+      ...state,
+      loading:false,
+      error:action.error.message
+    }
+  }else{
+    throw new Error(`This action type isn't supported.`)
+  }
+}
+
+export default function Result({location}){
+  const [state, dispatch] = React.useReducer(
+    ResultReducer,
+    {error:null, loading:true, winner:{}, loser:{}}
+  )
+  const { playerOne, playerTwo} = queryString.parse(location.search)
+  
+  
+
+  React.useEffect(()=> {
+    BattleBtn(playerOne, playerTwo)
+    .then((data)=> dispatch({
+      type:'success',
+      winner:data[0],
+      loser:data[1],
+    }))
+    .catch((error)=> dispatch({
+      type:'error',
+      error: error,
+    }))
+  },[playerOne, playerTwo])
+
+  if(state.loading === true){
+    return <p><Loading /></p>
+  }
+  if(state.error === ''){
+    return <p className='center-text error'>{state.error}</p>
+  }
+
+  return (
+    <React.Fragment>
+      <div className='grid space-around container-sm'>
+        <CardBlock 
+          header = {state.winner.score === state.loser.score ? 'Tie' : 'Winner'}
+          subheader = {state.winner.score.toLocaleString()}
+          avatar ={state.winner.profile.avatar_url}
+          href = {state.winner.profile.html_url}
+          username = {state.winner.profile.login}
+        >
+          <CardList profile ={state.winner.profile} />  
+        </CardBlock>
+        <CardBlock
+          header = {state.winner.score === state.loser.score ? 'Tie' : 'Winner'}
+          subheader = {state.loser.score.toLocaleString()}
+          avatar ={state.loser.profile.avatar_url}
+          href = {state.loser.profile.html_url}
+          username = {state.loser.profile.login}
+        >
+          <CardList profile ={state.loser.profile} />
+        </CardBlock>
+      </div>
+      <Link 
+        to='/battle'
+        className='btn dark-btn btn-space'
+      >
+        Reset
+      </Link>
+    </React.Fragment>
+    
+  )
+} 
+/*export default class Result extends React.Component{
   constructor (props){
     super(props)
     this.state = {
@@ -124,5 +204,5 @@ export default class Result extends React.Component{
     )
   }
 }
-
+*/
 
